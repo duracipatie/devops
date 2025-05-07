@@ -2,19 +2,43 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                git branch: 'main', url: 'https://github.com/duracipatie/devops.git'
             }
         }
-        stage('Docker Build') {
+        
+        stage('Compile') {
             steps {
-                sh 'docker build -t java-maven-app .'
+                echo 'Compiler'
+                bat 'mvn clean install'
             }
         }
-        stage('Run Container') {
+        
+         stage('Sonar Analysis') {
             steps {
-                sh 'docker run --rm java-maven-app'
+                echo 'Analyse Sonar'
+                 
+            }
+        }
+        
+        stage('Build image Docker') {
+            steps {
+                echo 'Build image Docker'
+                bat "docker build -t dxc/devops:latest ."
+            }
+        }
+        
+        stage('Publie l\'image') {
+            steps {
+                echo 'Publie l\'image dans le registry'
+            }
+        }
+        
+        stage('Exécuter l\'image - Conteneur') {
+            steps {
+                echo 'Publie l\'image dans le registry'
+                bat "docker run --rm dxc/devops:latest"
             }
         }
     }
